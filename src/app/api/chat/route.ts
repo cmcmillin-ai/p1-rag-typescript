@@ -1,4 +1,4 @@
-import { streamText } from "ai";
+import { streamText, convertToModelMessages } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
 import { retrieve, buildContext } from "@/lib/retrieval";
 
@@ -7,15 +7,20 @@ export const runtime = "nodejs";
 export async function POST(req: Request) {
   const { messages } = await req.json();
 
-  // Use the last user message as the retrieval query
   const lastUserMessage = messages.findLast(
     (m: { role: string }) => m.role === "user"
   );
-  const query = lastUserMessage?.content ?? "";
+  const query =
+    lastUserMessage?.parts?.find((p: { type: string }) => p.type === "text")
+      ?.text ?? "";
 
-  // Retrieve relevant context from pgvector
-  const chunks = await retrieve(query, 5);
-  const context = buildContext(chunks);
+  let context = "";
+  try {
+    const chunks = await retrieve(query, 5);
+    context = buildContext(chunks);
+  } catch {
+    // DB unavailable — proceed without context
+  }
 
   const result = streamText({
     model: anthropic("claude-sonnet-4-6"),
@@ -24,8 +29,8 @@ Answer based on the provided context. If the context doesn't contain enough info
 
 Context:
 ${context}`,
-    messages,
+    messages: await convertToModelMessages(messages),
   });
 
-  return result.toDataStreamResponse();
+  return result.toUIMessageStreamResponse();
 }

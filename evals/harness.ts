@@ -10,7 +10,6 @@
  *
  * Extend this with RAGAS metrics in Week 4.
  */
-
 import Anthropic from "@anthropic-ai/sdk";
 import { retrieve } from "../src/lib/retrieval";
 import testCases from "./datasets/sample.json";

@@ -1,0 +1,17 @@
+[
+  {
+    "query": "How does the chunking pipeline work?",
+    "expectedSource": "ingest",
+    "expectedTopics": ["chunking", "overlap", "text splitting"]
+  },
+  {
+    "query": "What embedding model is used?",
+    "expectedSource": "embeddings",
+    "expectedTopics": ["text-embedding-3-small", "OpenAI", "vector"]
+  },
+  {
+    "query": "How does retrieval work?",
+    "expectedSource": "retrieval",
+    "expectedTopics": ["cosine similarity", "pgvector", "top-k"]
+  }
+]
