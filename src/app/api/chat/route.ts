@@ -18,17 +18,22 @@ export async function POST(req: Request) {
   try {
     const chunks = await retrieve(query, 5);
     context = buildContext(chunks);
-  } catch {
-    // DB unavailable — proceed without context
+  } catch (err) {
+    console.error("Retrieval failed:", err);
   }
 
-  const result = streamText({
-    model: anthropic("claude-sonnet-4-6"),
-    system: `You are a helpful assistant that answers questions about code and documentation.
+  const systemPrompt = context
+    ? `You are a helpful assistant that answers questions about code and documentation.
 Answer based on the provided context. If the context doesn't contain enough information, say so clearly.
 
 Context:
-${context}`,
+${context}`
+    : `You are a helpful assistant that answers questions about code and documentation.
+No relevant documents were found for this query. Let the user know their question couldn't be matched to any ingested content, and suggest they run the ingest script if documents haven't been loaded yet.`;
+
+  const result = streamText({
+    model: anthropic("claude-sonnet-4-6"),
+    system: systemPrompt,
     messages: await convertToModelMessages(messages),
   });
 
