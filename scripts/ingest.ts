@@ -22,6 +22,10 @@ async function run() {
     .readdirSync(DOCS_DIR)
     .filter((f) => SUPPORTED_EXTENSIONS.includes(path.extname(f)));
 
+  const { pool } = await import("../src/lib/db");
+  await pool.query("TRUNCATE documents");
+  console.log("Cleared existing documents");
+
   if (files.length === 0) {
     console.log(`No supported files found in ${DOCS_DIR}`);
     console.log(`Add .md, .txt, .ts, or .js files to the /docs folder`);

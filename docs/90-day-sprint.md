@@ -223,4 +223,16 @@ Month 2 · Days 31–60    Agents → Multi-agent → Flagship build & ship
 Month 3 · Days 61–90    Specialisation → Narrative → Applications (Day 75+)
 ```
 
+---
+
+## Progress
+
+### ✅ Day 1 — 2026-03-04
+- GitHub org + three repos created and committed
+- Portfolio README live
+- Planning docs committed to `portfolio/docs/`
+- `p1-rag-typescript` scaffolded
+- RAG pipeline running end to end (ingest → embed → pgvector → retrieve → stream)
+- Chat UI working in Next.js with AI SDK v6
+
 *Experience compression is real — a typical engineer spends Month 1 just getting Python comfortable. You'll clear that in Week 1 and be building by Week 2. The time savings go into deeper projects.*
