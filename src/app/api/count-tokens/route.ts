@@ -5,6 +5,7 @@ import {
   toAnthropicCountMessages,
   type ChatRequestMessage,
 } from "@/lib/chat-prompt";
+import { getAnthropicModelName } from "@/lib/model-config";
 
 export const runtime = "nodejs";
 
@@ -42,7 +43,7 @@ export async function POST(req: Request) {
   const systemPrompt = await buildSystemPrompt(messagesWithDraft);
 
   const response = await getAnthropicClient().messages.countTokens({
-    model: "claude-sonnet-4-6",
+    model: getAnthropicModelName(),
     system: systemPrompt,
     messages: toAnthropicCountMessages(messagesWithDraft),
   });

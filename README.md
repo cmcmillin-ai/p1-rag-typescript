@@ -33,7 +33,7 @@ RAG application for searching a local codebase and documentation set with Claude
 | ------------ | ------------------------------- |
 | Frontend     | Next.js 16 App Router           |
 | UI Chat      | Vercel AI SDK                   |
-| LLM          | Anthropic `claude-sonnet-4-6`   |
+| LLM          | Anthropic via `ANTHROPIC_MODEL` |
 | Embeddings   | OpenAI `text-embedding-3-small` |
 | Vector Store | Postgres + pgvector             |
 | Language     | TypeScript                      |
@@ -66,11 +66,13 @@ Create `.env.local` in the project root with:
 
 ```bash
 ANTHROPIC_API_KEY=
+ANTHROPIC_MODEL=claude-sonnet-4-6
 OPENAI_API_KEY=
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/rag_db
 CHAT_TEMPERATURE=0
 ```
 
+Leave `ANTHROPIC_MODEL` unset to fall back to `claude-sonnet-4-6`.
 Leave `CHAT_TEMPERATURE` unset to use the provider default. Set it explicitly, such as `0`, when you want deterministic chat behavior.
 
 ### Local Development

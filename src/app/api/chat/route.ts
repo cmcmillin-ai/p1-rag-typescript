@@ -4,37 +4,28 @@ import {
   buildSystemPrompt,
   type ChatUIMessage,
 } from "@/lib/chat-prompt";
+import { getAnthropicModelName, getChatTemperature } from "@/lib/model-config";
 
 export const runtime = "nodejs";
-
-function getChatTemperature(): number | undefined {
-  const rawTemperature = process.env.CHAT_TEMPERATURE?.trim();
-
-  if (!rawTemperature) {
-    return undefined;
-  }
-
-  const temperature = Number(rawTemperature);
-
-  if (!Number.isFinite(temperature)) {
-    throw new Error("CHAT_TEMPERATURE must be a valid number");
-  }
-
-  return temperature;
-}
 
 export async function POST(req: Request) {
   const { messages }: { messages: ChatUIMessage[] } = await req.json();
 
   const systemPrompt = await buildSystemPrompt(messages);
+  
+  // convertToModelMessages adapts UI-shaped chat history into the provider-ready
+  // message format expected by streamText and the underlying model SDK.
+  const modelMessages = await convertToModelMessages(messages);
 
   const result = streamText({
-    model: anthropic("claude-sonnet-4-6"),
+    model: anthropic(getAnthropicModelName()),
     system: systemPrompt,
-    messages: await convertToModelMessages(messages),
+    messages: modelMessages,
     temperature: getChatTemperature(),
   });
 
+  // toUIMessageStreamResponse turns the streaming model result back into the
+  // UI message protocol that useChat consumes on the client, including metadata.
   return result.toUIMessageStreamResponse({
     originalMessages: messages,
     messageMetadata: ({ part }) => {
