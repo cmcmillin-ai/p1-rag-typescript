@@ -1,9 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { useChat } from "@ai-sdk/react";
 
+function useIsHydrated() {
+  return useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
+}
+
 export function ChatInterface() {
+  const isHydrated = useIsHydrated();
   const [input, setInput] = useState("");
   const { messages, status, sendMessage } = useChat();
 
@@ -16,6 +25,24 @@ export function ChatInterface() {
     setInput("");
     sendMessage({ text });
   };
+
+  if (!isHydrated) {
+    return (
+      <div
+        style={{
+          minHeight: "400px",
+          border: "1px solid #e5e7eb",
+          borderRadius: "8px",
+          padding: "1rem",
+          background: "#fff",
+          color: "#9ca3af",
+          fontSize: "0.875rem",
+        }}
+      >
+        Loading chat...
+      </div>
+    );
+  }
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>

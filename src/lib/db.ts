@@ -1,19 +1,27 @@
 import { Pool } from "pg";
 
-if (!process.env.DATABASE_URL) {
-  throw new Error("DATABASE_URL environment variable is not set");
-}
+let poolInstance: Pool | undefined;
 
-export const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-});
+function getPool(): Pool {
+  if (!process.env.DATABASE_URL) {
+    throw new Error("DATABASE_URL environment variable is not set");
+  }
+
+  if (!poolInstance) {
+    poolInstance = new Pool({
+      connectionString: process.env.DATABASE_URL,
+    });
+  }
+
+  return poolInstance;
+}
 
 /**
  * Initialise pgvector extension and documents table.
  * Safe to call multiple times — uses IF NOT EXISTS.
  */
 export async function initDb() {
-  const client = await pool.connect();
+  const client = await getPool().connect();
   try {
     await client.query("CREATE EXTENSION IF NOT EXISTS vector");
     await client.query(`
@@ -32,3 +40,11 @@ export async function initDb() {
     client.release();
   }
 }
+
+export const pool = new Proxy({} as Pool, {
+  get(_target, prop) {
+    const currentPool = getPool();
+    const value = Reflect.get(currentPool, prop, currentPool);
+    return typeof value === "function" ? value.bind(currentPool) : value;
+  },
+});

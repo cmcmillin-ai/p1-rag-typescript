@@ -2,9 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: "standalone",
-  experimental: {
-    serverComponentsExternalPackages: ["pg", "pgvector"],
-  },
+  serverExternalPackages: ["pg", "pgvector"],
 };
 
 export default nextConfig;
