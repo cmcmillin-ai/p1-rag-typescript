@@ -2,6 +2,18 @@ import { buildContext, retrieve } from "@/lib/retrieval";
 
 import type { UIMessage } from "ai";
 
+const QUERY_LOG_PREVIEW_LENGTH = 200;
+
+function getQueryPreview(query: string): string {
+  const normalizedQuery = query.replace(/\s+/g, " ").trim();
+
+  if (normalizedQuery.length <= QUERY_LOG_PREVIEW_LENGTH) {
+    return normalizedQuery;
+  }
+
+  return `${normalizedQuery.slice(0, QUERY_LOG_PREVIEW_LENGTH)}...`;
+}
+
 export interface ChatRequestPart {
   type: string;
   text?: string;
@@ -35,14 +47,32 @@ export function getLastUserQuery(messages: ChatRequestMessage[]): string {
 
 export async function buildSystemPrompt(messages: ChatRequestMessage[]): Promise<string> {
   const query = getLastUserQuery(messages);
+  const startedAt = Date.now();
+
+  console.info("Building system prompt", {
+    messageCount: messages.length,
+    hasQuery: query.trim().length > 0,
+    queryPreview: getQueryPreview(query),
+  });
 
   let context = "";
   try {
     const chunks = await retrieve(query, 5);
     context = buildContext(chunks);
+
+    console.info("System prompt retrieval complete", {
+      chunkCount: chunks.length,
+      contextLength: context.length,
+      durationMs: Date.now() - startedAt,
+    });
   } catch (err) {
     console.error("Retrieval failed:", err);
   }
+
+  console.info("System prompt ready", {
+    usedRetrievedContext: context.length > 0,
+    durationMs: Date.now() - startedAt,
+  });
 
   return context
     ? `You are a helpful assistant that answers questions about code and documentation.
