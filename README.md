@@ -68,7 +68,10 @@ Create `.env.local` in the project root with:
 ANTHROPIC_API_KEY=
 OPENAI_API_KEY=
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/rag_db
+CHAT_TEMPERATURE=0
 ```
+
+Leave `CHAT_TEMPERATURE` unset to use the provider default. Set it explicitly, such as `0`, when you want deterministic chat behavior.
 
 ### Local Development
 
